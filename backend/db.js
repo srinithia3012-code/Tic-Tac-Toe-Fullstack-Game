@@ -3,11 +3,17 @@ const mongoose = require("mongoose");
 let cached = global.mongooseConnection;
 
 if (!cached) {
-  cached = { conn: null, promise: null };
-  global.mongooseConnection = cached;
+  cached = global.mongooseConnection = { conn: null, promise: null };
 }
 
-const connectToDatabase = async (mongoUri) => {
+const connectToDatabase = async () => {
+  // Try Docker hostname first
+  const mongoUriDocker = process.env.MONGO_URI_DOCKER || "mongodb://mongo:27017/tic-tac-toe";
+  const mongoUriHost = process.env.MONGO_URI_HOST || "mongodb://127.0.0.1:27017/tic-tac-toe";
+
+  // Determine which URI to use
+  const mongoUri = process.env.IS_DOCKER === "true" ? mongoUriDocker : mongoUriHost;
+
   if (!mongoUri) {
     throw new Error("Missing MONGO_URI environment variable");
   }
@@ -23,12 +29,13 @@ const connectToDatabase = async (mongoUri) => {
         useUnifiedTopology: true,
       })
       .then((mongooseInstance) => {
-        console.log("Connected to MongoDB");
+        console.log(`MongoDB connected at ${mongoUri}`);
         return mongooseInstance;
       })
-      .catch((error) => {
+      .catch((err) => {
         cached.promise = null;
-        throw error;
+        console.error("MongoDB connection failed:", err);
+        throw err;
       });
   }
 

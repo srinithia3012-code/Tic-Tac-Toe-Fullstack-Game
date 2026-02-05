@@ -1,36 +1,48 @@
-version: '3.8'
-
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+  mongo:
+    image: mongo:7.0
+    container_name: mongo
     ports:
-      - "3000:80" # Map frontend container's port 80 to localhost:3000
+      - "27017:27017"
     networks:
       - tic-tac-toe-network
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "4000:4000" # Map backend container's port 4000 to localhost:4000
+      - "4000:4000"
     networks:
       - tic-tac-toe-network
     environment:
       MONGO_URI: mongodb://mongo:27017/tic-tac-toe
-      JWT_SECRET: your-jwt-secret
+      JWT_SECRET: ee6ca4fe47cce15bcc36d5f260f52c3a2256b09458578bb1def2ed4b80a9e8c66cff4d91eb990bb6ea6e3cdda18dd85d31bc867b7c74cad840b8262dcabc2ca3
+      PORT: 4000
+      IS_DOCKER: "true"
+    depends_on:
+      mongo:
+        condition: service_healthy
 
-  mongo:
-    image: mongo:5.0
-    container_name: mongo
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "27017:27017" # Map MongoDB's default port
+      - "3000:80"
     networks:
       - tic-tac-toe-network
-    volumes:
-      - mongo-data:/data/db
+    environment:
+      - VITE_API_BASE=http://backend:4000  # ← FIXED!
+    depends_on:
+      - backend
 
 networks:
   tic-tac-toe-network:

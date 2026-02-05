@@ -18,6 +18,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../utils/api";
 
 interface BoardProps {
   boardSize: number;
@@ -36,13 +37,7 @@ const Board: React.FC<BoardProps> = ({
   timerDuration,
   gameMode,
 }) => {
-  const API_BASE =
-    process.env.REACT_APP_API_BASE ||
-    "https://tic-tac-toe-backend-api.vercel.app";
-  const apiUrl = useCallback(
-    (path: string) => `${API_BASE}${path}`,
-    [API_BASE],
-  );
+  const apiUrl = useCallback((path: string) => `${API_BASE}${path}`, []);
   const ONLINE_BOARD_SIZE = 4;
   const effectiveBoardSize =
     gameMode === "online" ? ONLINE_BOARD_SIZE : boardSize;

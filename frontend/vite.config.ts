@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
   const apiBase =
     env.REACT_APP_API_BASE ||
     env.VITE_API_BASE ||
-    "https://tic-tac-toe-backend-api.vercel.app";
+    "http://localhost:4000";
 
   return {
     plugins: [react()],

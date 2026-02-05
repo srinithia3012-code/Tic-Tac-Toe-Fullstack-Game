@@ -30,6 +30,7 @@ import {
   LightMode as LightModeIcon,
 } from "@mui/icons-material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { API_BASE } from "../utils/api";
 
 const Navbar: React.FC<{ isDarkMode: boolean; toggleTheme: () => void }> = ({
   isDarkMode,
@@ -54,14 +55,7 @@ const Navbar: React.FC<{ isDarkMode: boolean; toggleTheme: () => void }> = ({
       }
 
       try {
-        const apiBase =
-          process.env.REACT_APP_API_BASE ||
-          (typeof import.meta !== "undefined"
-            ? // @ts-ignore - Vite injects import.meta.env
-              import.meta.env?.VITE_API_BASE
-            : undefined) ||
-          "https://tic-tac-toe-backend-api.vercel.app";
-        const response = await fetch(`${apiBase}/auth/validate-token`, {
+        const response = await fetch(`${API_BASE}/auth/validate-token`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
